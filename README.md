@@ -10,6 +10,7 @@ Avant de le lancer:
 -copyright: le footer des embeds
 [facultatif]-pclient: Le secret code client paypal (pour le système de paiment +purchase
 -supportServer: serveur support
+-BoostToWin: channel de boost du serveur support
 
 3- Aller dans db\db.js et config votre db mysql
 [facultatif] 4- Aller dans website\server.js et cette fois config "client_id" ligne 9 et mettre votre paypal client id
