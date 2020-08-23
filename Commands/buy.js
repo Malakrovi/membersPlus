@@ -8,10 +8,10 @@ module.exports.run = async (client, message, args) => {
     //+buy #OfCoins AdvertisementMessage
     console.log(arguments[0])
 
-    if(!arguments[1]) return message.channel.send("Improper formatting, please make sure you do +buy and then a number like 5, followed by a message for example +buy 5 join my server. If that is still working make sure the bot as the admin permission. **Do this command in the server you want to buy in**")
+    if(!arguments[1]) return message.channel.send("Improper formatting, please make sure you do .buy and then a number like 5, followed by a message for example .buy 5 join my server. If that is still working make sure the bot as the admin permission. **Do this command in the server you want to buy in**")
     if(arguments[1] < 3) return message.channel.send("Orders must be 3 coins or larger.")
 
-    if(!isInt(arguments[1]))  return message.channel.send("Improper formatting, please make sure you do +buy and then a number like 5, followed by a message for example +buy 5 join my server. If that is still working make sure the bot as the admin permission. **Do this command in the server you want to buy in**")
+    if(!isInt(arguments[1]))  return message.channel.send("Improper formatting, please make sure you do .buy and then a number like 5, followed by a message for example .buy 5 join my server. If that is still working make sure the bot as the admin permission. **Do this command in the server you want to buy in**")
     let advertMessage;
     if(arguments[2]){
         if(arguments[2].length > 30) return message.channel.send("Advert message to long, max 30 characters")
@@ -28,7 +28,7 @@ module.exports.run = async (client, message, args) => {
         if(rowsMember.length < 1){
             message.channel.send(new Discord.MessageEmbed()
                 .setTitle("Order Failed")
-                .setDescription("You do not have sufficient funds.Try using +find to find servers to join.")
+                .setDescription("You do not have sufficient funds.Try using .find to find servers to join.")
                 .setFooter(config.copyright)
                 .setColor(config.embedColor)
             )
@@ -39,7 +39,7 @@ module.exports.run = async (client, message, args) => {
             console.log(memberCoins)
             if(memberCoins < parseInt(arguments[1])) return message.channel.send(new Discord.MessageEmbed()
             .setTitle("Order Failed")
-            .setDescription("You do not have sufficient funds.Try using +find to find servers to join.")
+            .setDescription("You do not have sufficient funds.Try using .find to find servers to join.")
             .setFooter(config.copyright)
             .setColor(config.embedColor)
         )
@@ -52,33 +52,43 @@ module.exports.run = async (client, message, args) => {
             db.con.query("UPDATE members SET coins = ? WHERE id = ?", [memberCoins - parseInt(arguments[1]), message.author.id])
             db.con.query("UPDATE members SET transaction = ? WHERE id = ?", [JSON.stringify(transactionAuthor), message.author.id])
             
-            let invitecode = "";
-
             let invite = message.guild.channels.cache.filter(channel => channel.type == "text").random().createInvite({
                 maxAge: 0,
                 maxUses: 0
             }).then(invite => {
-                invitecode = invite.code;
+                console.log(invite.code)
+                db.con.query("UPDATE `guilds` SET `invite`=? WHERE id = ?", [invite.code,message.guild.id], function (err, result) {
+                    if (err) throw err;
+                  });
             })
 
             db.con.query("SELECT * FROM guilds WHERE id = ?", message.guild.id, (err, rowsServer) => {
                 if(err) throw err;
         
                 if(rowsServer.length < 1){
-
-                    db.con.query("INSERT INTO `guilds`(`id`, `name`, `memberCount`, `invite`, `advertName`) VALUES (?, ?, ?, ?, ?)", [message.guild.id, message.guild.name, message.guild.memberCount, invitecode, advertMessage])
+                    console.log("no server")
                 } else {
                     let bJ = rowsServer[0].boughtJoins
         
                    
-
-                    db.con.query("UPDATE guilds SET boughtJoins = ? WHERE id = ?", [parseInt(bJ) + parseInt(arguments[1]), message.guild.id])
+                   db.con.query("SELECT * FROM guilds WHERE id = ?", message.guild.id, (err, rowsServer) => {
+                   	if(rowsServer.length < 1){
+                   		db.con.query("INSERT INTO `guilds` (id, name, memberCount) VALUES (?,?,?)", [message.guild.id,message.guild.name,message.guild.memberCount]);
+                   	}else {
+                   		db.con.query("UPDATE guilds SET boughtJoins = ? WHERE id = ?", [parseInt(bJ) + parseInt(arguments[1]), message.guild.id])
                     db.con.query("UPDATE guilds SET advertName = ? WHERE id = ?", [advertMessage, message.guild.id])
+                   	}
+                   })
+
+                   
                 }
+
+
+			        console.log(invite.code)
 
                 message.channel.send(new Discord.MessageEmbed()
             .setTitle(`Order for ${message.guild.name}`)
-            .setDescription(`Your order has been placed. Use +info to track its progress.\nMessage: ${advertMessage}`)
+            .setDescription(`Your order has been placed. Use .info to track its progress.\nMessage: ${advertMessage}`)
             .setFooter(config.copyright)
             .setColor(config.embedColor)
             .setThumbnail(message.guild.iconURL())
