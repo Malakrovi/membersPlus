@@ -14,7 +14,7 @@ module.exports.run = async (client, message, args) => {
             embed.addField("Error", "No user found")
             message.channel.send(embed);
         } else {
-            for (var i = 0; i < 25; i++){
+            for (var i = 0; i < rows.length; i++){
                  let coins = rows[i].coins
                 coins = parseFloat(coins).toFixed(2)
                 embed.addField(`${rows[i].tag}`, `${coins} coins`)
