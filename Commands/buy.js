@@ -52,21 +52,21 @@ module.exports.run = async (client, message, args) => {
             db.con.query("UPDATE members SET coins = ? WHERE id = ?", [memberCoins - parseInt(arguments[1]), message.author.id])
             db.con.query("UPDATE members SET transaction = ? WHERE id = ?", [JSON.stringify(transactionAuthor), message.author.id])
             
+            let invitecode = "";
+
             let invite = message.guild.channels.cache.filter(channel => channel.type == "text").random().createInvite({
                 maxAge: 0,
                 maxUses: 0
             }).then(invite => {
-                console.log(invite.code)
-                db.con.query("UPDATE `guilds` SET `invite`=? WHERE id = ?", [invite.code,message.guild.id], function (err, result) {
-                    if (err) throw err;
-                  });
+                invitecode = invite.code;
             })
 
             db.con.query("SELECT * FROM guilds WHERE id = ?", message.guild.id, (err, rowsServer) => {
                 if(err) throw err;
         
                 if(rowsServer.length < 1){
-                    console.log("no server")
+
+                    db.con.query("INSERT INTO `guilds`(`id`, `name`, `memberCount`, `invite`, `advertName`) VALUES (?, ?, ?, ?, ?)", [message.guild.id, message.guild.name, message.guild.memberCount, invitecode, advertMessage])
                 } else {
                     let bJ = rowsServer[0].boughtJoins
         
