@@ -14,4 +14,4 @@
 [facultatif] 4.5- Aller dans Commands\purchase.js et config “client_id” ligne 12 et mettre votre paypal client id</p>
 <p class="has-line-data" data-line-start="18" data-line-end="19">5- Copier le contenue du fichier joinplus.sql, ensuite crée une base de donnée avec le nom de votre choix puis éxécutez le code sql que vous venez de copier.</p>
 <p class="has-line-data" data-line-start="20" data-line-end="21">6- Vous pouvez maintenant lancer le start.js</p>
-<p class="has-line-data" data-line-start="22" data-line-end="23">mlk#2389</p>
+<p class="has-line-data" data-line-start="22" data-line-end="23">45MLK#2389</p>
